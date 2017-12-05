@@ -7,8 +7,10 @@ import container_feeder, config.parameters as _params
 import job_operations
 
 node_id = "id_1"
-jqueue_name 	= 'jqueuing_queue'
+
 '''
+jqueue_name 	= 'jqueuing_queue'
+
 def init_jqueuing_worker():
 	jqueuing_app = Celery('jqueuing_app',
 		broker	= 	_params.broker() ,
