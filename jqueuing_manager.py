@@ -50,5 +50,8 @@ def start_jqueuing_worker(worker):
 if __name__ == '__main__':
 	#worker_thread = Thread(target = start_jqueuing_worker, args = (worker,))
 	#worker_thread.start()
+	container_feeder.start(node_id)
+	'''
 	container_feeder_thread = Thread(target = container_feeder.start, args = (node_id,))
 	container_feeder_thread.start()
+	'''
