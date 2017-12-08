@@ -34,3 +34,11 @@ backend_experiment_db = redis.StrictRedis(
 def backend(db):
 	backend = backend_protocol + '://' + backend_server + ':' + str(backend_port) + '/' + str(db)
 	return backend
+
+
+from datadog import DogStatsd
+
+STASTD_SERVER 	= '192.168.253.1'
+STASTD_PORT		= 9125
+
+statsd = DogStatsd(host=STASTD_SERVER, port=STASTD_PORT)

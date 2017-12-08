@@ -6,7 +6,7 @@ from threading import Thread
 from pprint import pprint
 from docker import types
 import monitoring
-from config.parameters import backend_experiment_db
+from parameters import backend_experiment_db
 
 job_workers = []
 node_id = "no_id_3"
