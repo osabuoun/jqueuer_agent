@@ -5,8 +5,8 @@ broker_protocol		= 	'pyamqp'
 broker_username 	= 	'admin'
 #broker_password 	= 	''
 broker_password 	= 	'mypass'
-broker_server		=	'192.168.253.1'
-#broker_server		=	'rabbit'
+#broker_server		=	'192.168.253.1'
+broker_server		=	'rabbit'
 broker_port 		= 	5672
 
 def broker():
@@ -17,9 +17,9 @@ def broker():
 	return broker
 
 backend_protocol 			= 	'redis'
-backend_server	 			=	'192.168.253.1'
-#backend_server	 			=	'redis'
-backend_port     			=	16379
+#backend_server	 			=	'192.168.253.1'
+backend_server	 			=	'redis'
+backend_port     			=	6379
 backend_db		 			=	0
 backend_experiment_db_id	=	10
 
@@ -38,7 +38,8 @@ def backend(db):
 
 from datadog import DogStatsd
 
-STASTD_SERVER 	= '192.168.253.1'
-STASTD_PORT		= 9125
+#STASTD_SERVER 	= '192.168.253.1'
+STATSD_SERVER 	= 'statsd'
+STATSD_PORT		= 9125
 
-statsd = DogStatsd(host=STASTD_SERVER, port=STASTD_PORT)
+statsd = DogStatsd(host=STATSD_SERVER, port=STATSD_PORT)
