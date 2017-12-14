@@ -47,9 +47,13 @@ def start_jqueuing_worker(worker):
 	}
 	jqueuing_worker.run(**jqueuing_options)
 '''
+
 if __name__ == '__main__':
 	#worker_thread = Thread(target = start_jqueuing_worker, args = (worker,))
 	#worker_thread.start()
+	if (len(sys.argv) > 1):
+		node_id = sys.argv[1]
+	print("* Node_ID: " + str(sys.argv[1]))
 	container_feeder.start(node_id)
 	'''
 	container_feeder_thread = Thread(target = container_feeder.start, args = (node_id,))

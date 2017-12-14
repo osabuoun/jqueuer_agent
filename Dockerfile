@@ -12,4 +12,5 @@ RUN mkdir log
 RUN mkdir data
 RUN pip install -r requirements.txt
 RUN pip install -U "celery[redis]"
-ENTRYPOINT python3 jqueuing_manager.py
+ENV NODE_ID=noname 
+ENTRYPOINT python3 jqueuing_manager.py $NODE_ID
