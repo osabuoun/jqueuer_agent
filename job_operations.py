@@ -100,9 +100,9 @@ def add(self, exp_id, job_queue_id, job):
 		myfile.write("New Queue Job: " + job_queue_id + "\n") 
 		myfile.write("Command: " + str(job['command']) + "\n")
 		myfile.write("Parameters: " + str(len(job_params)) + "\n")
-
-		if (isinstance(job['tasks'], list)):
-			print("Tasks : There is a List of " + str(len(job['tasks'])))
+		tasks = job['tasks']
+		if (isinstance(tasks, list)):
+			print("Tasks : There is a List of " + str(len(tasks)))
 			output = process_list(worker_id, exp_id, job_queue_id, job, myfile)
 		else:
 			output = process_array(worker_id, exp_id, job_queue_id, job, myfile)
