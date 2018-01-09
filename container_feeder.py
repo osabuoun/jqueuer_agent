@@ -75,7 +75,7 @@ def start(node_id_t):
 				print('ip_address' + '')
 				print('created'+ container.attrs['Created'])
 				print('started' + container.attrs['State']['StartedAt'])
-				print('experiment_id' + experiment['exp_id'])
+				print('experiment_id' + experiment['experiment_id'])
 				print('experiment_params' + str(experiment['params'])) 	
 				'''	
 				container_obj = {
@@ -89,7 +89,7 @@ def start(node_id_t):
 					'ip_address': '',
 					'created': container.attrs['Created'],
 					'started': container.attrs['State']['StartedAt'],
-					'experiment_id':experiment['exp_id'], 
+					'experiment_id':experiment['experiment_id'], 
 				}
 				'''		
 					'experiment_params':experiment['params'], 
