@@ -10,7 +10,7 @@ ADD parameters.py /jqueuing_manager/parameters.py
 WORKDIR /jqueuing_manager/
 RUN mkdir log
 RUN mkdir data
-RUN pip3 install -r requirements.txt
-RUN pip3 install -U "celery[redis]"
+RUN pip install -r requirements.txt
+RUN pip install -U "celery[redis]"
 ENV NODE_ID=noname 
 ENTRYPOINT python3 jqueuing_manager.py $NODE_ID

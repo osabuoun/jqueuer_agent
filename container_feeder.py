@@ -66,7 +66,7 @@ def start(node_id_t):
 
 				if (container_long_id in container_list):
 					#print("Container " + container_long_id + " has been added previously")
-					 container_list[container_long_id]['current_update'] = current_update
+					container_list[container_long_id]['current_update'] = current_update
 					continue
 				print("Container " + container_long_id + " will be added now")
 
@@ -89,7 +89,9 @@ def start(node_id_t):
 					container_obj['ip_address'] = container.attrs['NetworkSettings']['Networks']['bridge']['IPAddress']
 
 					add(container_obj)
+					print("------------------------ New contanier -------------------------")
 					pprint(container_obj)
+					print("------------------------ New contanier -------------------------")
 					container_list[container_long_id] = container_obj
 
 				except Exception as e:
@@ -98,12 +100,14 @@ def start(node_id_t):
 			except Exception as e:
 				#print("It isn't a swarm service's container")
 				pass
-			trash = []
-			for container_id_temp in container_list:
-				container_temp = container_list[container_id_temp]
-				if (container_temp['current_update'] < current_update):
-					os.kill(container_temp['process'].pid, signal.SIGINT)
-					trash.append(container_id_temp)
-			for x in trash:
-				del container_list[x]
-		time.sleep(5)
+		trash = []
+		for container_id_temp in container_list:
+			container_temp = container_list[container_id_temp]
+			if (container_temp['current_update'] < current_update):
+				print("------------------------ New contanier -------------------------")
+				print("This container should be deleted from the list since it doesn't exist anymore : " + str(container_id_temp))
+				os.killpg(os.getpgid(container_temp['process'].pid), signal.SIGTERM)
+				trash.append(container_id_temp)
+		for x in trash:
+			del container_list[x]
+		time.sleep(0.5)
