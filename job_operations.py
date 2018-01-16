@@ -6,16 +6,108 @@ import jqueuing_worker as jqw
 import monitoring
 import celery
 from celery.exceptions import Reject
+from celery.result import AsyncResult
 
 print("Job Operations - Started")
-'''
-class MyTask(celery.Task):
+
+class JQueuer_Task(celery.Task):
+	'''
+	def on_success(self, retval, task_id, args, kwargs):
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+		res = AsyncResult(task_id)
+		
+		print('{0!r} succeeded: {1!r}: {2!r}'.format(task_id, str(res.ready()),retval))
+		#sys.exit(1)
+		#self.update_state(state='FAILURE', meta={'exc': exc}), 'task_id': task_id, 'args': args, 'kwargs': kwargs, 'einfo': einfo})
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+		print("*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*")
+	'''
 	def on_failure(self, exc, task_id, args, kwargs, einfo):
 		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
-		#print('{0!r} failed: {1!r}'.format(task_id, exc))
-		self.update_state(state='FAILURE', meta={'exc': exc}) #, 'task_id': task_id, 'args': args, 'kwargs': kwargs, 'einfo': einfo})
 		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
-'''
+		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
+		print('{0!r} failed: {1!r}'.format(task_id, exc))
+		#sys.exit(1)
+		#self.update_state(state='FAILURE', meta={'exc': exc}), 'task_id': task_id, 'args': args, 'kwargs': kwargs, 'einfo': einfo})
+		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
+		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
+		print("/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/")
+
+index = 0
+container_dead = False
+@job_app.task(bind=True,acks_late=True, track_started=True, base=JQueuer_Task) # 
+def add(self, exp_id, job_queue_id, job):
+	print("+++++++++++++++++++ First ++++++++++++++++++++++++")
+	print(self.AsyncResult(self.request.id).state)
+	print("++++++++++++++++++++++++++++++++++++++++++++++++++")
+	global index, container_dead
+	if (container_dead):
+		time.sleep(30) 
+		raise Reject('my container is dead', requeue=True)
+	index = index +1
+	job_params  = job['params']
+	job_command 	= job['command']
+	job_start_time = time.time()
+	output = ""
+
+	worker_id = self.request.hostname.split("@")[1]
+	#node_id, service_name, container_id  = worker_id.split("##")
+
+	monitoring.run_job(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id)
+
+	#log_file =  "./log/" + self.request.hostname + ".log"
+	log_file =  "./" + worker_id + ".log"
+
+	with open(log_file, "a") as myfile:
+		myfile.write("node_id: " + getNodeID(worker_id) + "\n") 
+		myfile.write("worker_id: " + worker_id + "\n") 
+		myfile.write("New Queue Job: " + job_queue_id + "\n") 
+		myfile.write("Command: " + str(job['command']) + "\n")
+		myfile.write("Parameters: " + str(len(job_params)) + "\n")
+		tasks = job['tasks']
+		try:
+			if (isinstance(tasks, list)):
+				print("Tasks : There is a List of " + str(len(tasks)))
+				output = process_list(worker_id, exp_id, job_queue_id, job, myfile, job_start_time)
+			else:
+				output = process_array(worker_id, exp_id, job_queue_id, job, myfile, job_start_time)
+				print("Tasks : There is an array of " + str(tasks['count']))
+			print("......................................................")
+			print(worker_id + " has finished the job " + job_queue_id + " - " + exp_id)
+			monitoring.terminate_job(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
+
+		except subprocess.CalledProcessError as e:
+			monitoring.job_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
+			print("/////////////////////  Exception 1 in worker ///////////////////////// - " + str(index))
+			#print(str(e))
+			#print("/////////////////////////////////////////////////////")
+			container_dead = True
+			#raise Reject(e, requeue=True)
+			self.update_state(state='RETRY')
+			print("+++++++++++++++++++ Failed ++++++++++++++++++++++++")
+			print(self.AsyncResult(self.request.id).state)
+			print("++++++++++++++++++++++++++++++++++++++++++++++++++")
+			time.sleep(200)
+			print("I' killing the process since my container is dead :(")
+			#time.sleep(10)
+			#sys.exit(0)
+		'''
+		except Exception as e:
+	#		monitoring.task_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task_id, task_start_time)
+			monitoring.job_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
+			print("/////////////////////  Exception 2 in worker /////////////////////////" + str(index))
+			#print(str(e))
+			#print("/////////////////////////////////////////////////////")
+			try:
+				raise Reject(e, requeue=True)
+			except Exception as e:
+				pass
+		'''
+		return output
+
 def getNodeID(worker_id):
 	return worker_id.split("##")[0]
 
@@ -43,7 +135,7 @@ def process_list(worker_id, exp_id, job_queue_id, job, myfile, job_start_time):
 		task_start_time = time.time()
 		monitoring.run_task(getNodeID(worker_id), exp_id,getServiceName(worker_id), worker_id, job_queue_id, task["id"])
 
-		command = ['docker','exec', getContainerID(worker_id)] + task_command + [str(task["data"])]
+		command = ['docker','exec', getContainerID(worker_id)] + task_command + task["data"]
 		output = subprocess.check_output(command)
 		monitoring.terminate_task(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task["id"], task_start_time)
 	'''
@@ -111,66 +203,4 @@ def process_array(worker_id, exp_id, job_queue_id, job, myfile, job_start_time):
 	print(worker_id + " - Output: " + str(output))
 	return output
 
-index = 0
-container_dead = False
-@job_app.task(bind=True,acks_late=True)
-def add(self, exp_id, job_queue_id, job):
-	global index, container_dead
-	if (container_dead):
-		raise Reject('my container is dead', requeue=True)
-		time.sleep(30) 
-	index = index +1
-	job_params  = job['params']
-	job_command 	= job['command']
-	job_start_time = time.time()
-	output = ""
 
-	worker_id = self.request.hostname.split("@")[1]
-	#node_id, service_name, container_id  = worker_id.split("##")
-
-	monitoring.run_job(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id)
-
-	#log_file =  "./log/" + self.request.hostname + ".log"
-	log_file =  "./" + worker_id + ".log"
-
-	with open(log_file, "a") as myfile:
-		myfile.write("node_id: " + getNodeID(worker_id) + "\n") 
-		myfile.write("worker_id: " + worker_id + "\n") 
-		myfile.write("New Queue Job: " + job_queue_id + "\n") 
-		myfile.write("Command: " + str(job['command']) + "\n")
-		myfile.write("Parameters: " + str(len(job_params)) + "\n")
-		tasks = job['tasks']
-		try:
-			if (isinstance(tasks, list)):
-				print("Tasks : There is a List of " + str(len(tasks)))
-				output = process_list(worker_id, exp_id, job_queue_id, job, myfile, job_start_time)
-			else:
-				output = process_array(worker_id, exp_id, job_queue_id, job, myfile, job_start_time)
-				print("Tasks : There is an array of " + str(tasks['count']))
-			print("......................................................")
-			print(worker_id + " has finished the job " + job_queue_id + " - " + exp_id)
-			monitoring.terminate_job(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
-
-		except subprocess.CalledProcessError as e:
-			monitoring.job_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
-			print("/////////////////////  Exception 1 in worker ///////////////////////// - " + str(index))
-			#print(str(e))
-			#print("/////////////////////////////////////////////////////")
-			container_dead = True
-			raise Reject(e, requeue=True)
-			print("I' killing the process since my container is dead :(")
-			#time.sleep(10)
-			#sys.exit(0)
-		'''
-		except Exception as e:
-	#		monitoring.task_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task_id, task_start_time)
-			monitoring.job_failed(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, job_start_time)
-			print("/////////////////////  Exception 2 in worker /////////////////////////" + str(index))
-			#print(str(e))
-			#print("/////////////////////////////////////////////////////")
-			try:
-				raise Reject(e, requeue=True)
-			except Exception as e:
-				pass
-		'''
-		return output

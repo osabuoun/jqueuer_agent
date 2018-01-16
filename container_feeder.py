@@ -103,8 +103,7 @@ def start(node_id_t):
 		trash = []
 		for container_id_temp in container_list:
 			container_temp = container_list[container_id_temp]
-			if (container_temp['current_update'] < current_update):
-				print("------------------------ New contanier -------------------------")
+			if (current_update - container_temp['current_update'] > 2 ):
 				print("This container should be deleted from the list since it doesn't exist anymore : " + str(container_id_temp))
 				os.killpg(os.getpgid(container_temp['process'].pid), signal.SIGTERM)
 				trash.append(container_id_temp)
