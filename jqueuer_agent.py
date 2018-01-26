@@ -102,7 +102,7 @@ def start(node_id):
 if __name__ == '__main__':
 	if (len(sys.argv) > 1):
 		node_id = sys.argv[1]
-	else
+	else:
 		node_id = "default_id_1"
 	print("* Node_ID: " + str(sys.argv[1]))
 	start(node_id)
