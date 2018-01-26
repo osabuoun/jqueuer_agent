@@ -9,32 +9,18 @@ import monitoring
 from parameters import backend_experiment_db
 
 job_workers = {}
-node_id = "no_id_3"
-customer_services = {}
 
-
-def worker(container):
+def worker(container, node_id):
 	# Arguments you give on command line
-	global node_id
 	monitoring.add_worker(node_id, container["service_name"])
-	process = subprocess.Popen(['python3','jqueuing_worker.py', str(node_id) ,str(container)])
+	process = subprocess.Popen(['python3','container_worker.py', str(node_id) ,str(container)])
 	print("process: " + str(process))
 	container['process'] = process
 	#job_workers[container['container_long_id']] = {'container': container, 'process': process}
 	#monitoring.terminate_worker(node_id, service_name)
 	#print("Worker_main Output: " + str(output))
 
-def add(container):
-	#print("**************************************")
-	#print(container)
-	job_worker_thread = Thread(target = worker, args = (container,))
-	job_worker_thread.start()
-	#job_workers.append(job_worker_thread)
-	#print("**************Back from worker ************")
-
-def start(node_id_t):
-	global node_id
-	node_id = node_id_t
+def start(node_id):
 	print("Starting container feeder, Node: " + node_id)
 	container_list = {}
 	print("Before client init " + node_id)
@@ -88,7 +74,9 @@ def start(node_id_t):
 				try:
 					container_obj['ip_address'] = container.attrs['NetworkSettings']['Networks']['bridge']['IPAddress']
 
-					add(container_obj)
+					job_worker_thread = Thread(target = worker, args = (container_obj, node_id,))
+					job_worker_thread.start()
+
 					print("------------------------ New contanier -------------------------")
 					pprint(container_obj)
 					print("------------------------ New contanier -------------------------")
@@ -110,3 +98,11 @@ def start(node_id_t):
 		for x in trash:
 			del container_list[x]
 		time.sleep(0.5)
+
+if __name__ == '__main__':
+	if (len(sys.argv) > 1):
+		node_id = sys.argv[1]
+	else
+		node_id = "default_id_1"
+	print("* Node_ID: " + str(sys.argv[1]))
+	start(node_id)

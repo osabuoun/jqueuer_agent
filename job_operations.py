@@ -1,8 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 import time, shlex, subprocess, random, sys, os
 
-from jqueuing_worker import job_app
-import jqueuing_worker as jqw
+from container_worker import job_app
+import container_worker as jqw
 import monitoring
 import celery
 from celery.exceptions import Reject
