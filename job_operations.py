@@ -135,7 +135,7 @@ def process_list(worker_id, exp_id, job_queue_id, job, myfile, job_start_time):
 		task_start_time = time.time()
 		monitoring.run_task(getNodeID(worker_id), exp_id,getServiceName(worker_id), worker_id, job_queue_id, task["id"])
 
-		command = ['docker','exec', getContainerID(worker_id)] + task_command + task["data"]
+		command = ['docker','exec', getContainerID(worker_id)] + task_command + task["data"] + [str(worker_id)]
 		output = subprocess.check_output(command)
 		monitoring.terminate_task(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task["id"], task_start_time)
 	'''
@@ -178,7 +178,7 @@ def process_array(worker_id, exp_id, job_queue_id, job, myfile, job_start_time):
 		task_start_time = time.time()
 		task_id = tasks["id"] + "_" + str(x)
 		monitoring.run_task(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task_id)
-		command = ['docker','exec', getContainerID(worker_id)] + tasks['command'] + [str(tasks["data"])]
+		command = ['docker','exec', getContainerID(worker_id)] + tasks['command'] + [str(tasks["data"]) + [str(worker_id)]]
 		print(worker_id + " - Running Task : " + str(command))
 		output = subprocess.check_output(command)
 		monitoring.terminate_task(getNodeID(worker_id), exp_id, getServiceName(worker_id), worker_id, job_queue_id, task_id , task_start_time)
