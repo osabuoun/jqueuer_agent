@@ -69,7 +69,7 @@ def run_job(node_id, experiment_id ,service_name, qworker_id, job_id):
 	)
 
 JQUEUER_JOB_ACCOMPLISHED 			= 'jqueuer_job_accomplished'
-JQUEUER_JOB_ACCOMPLISHED_LATENCY 	= 'jqueuer_job_accomplished_latency'
+JQUEUER_JOB_ACCOMPLISHED_DURATION 	= 'jqueuer_job_accomplished_duration'
 JQUEUER_JOB_ACCOMPLISHED_TIMESTAMP 	= 'jqueuer_job_accomplished_timestamp'
 def terminate_job(node_id, experiment_id ,service_name, qworker_id, job_id, start_time):
 	elapsed_time = time.time() - start_time
@@ -93,7 +93,7 @@ def terminate_job(node_id, experiment_id ,service_name, qworker_id, job_id, star
 			'job_id: %s' % job_id,
 		]
 	)
-	statsd.gauge(JQUEUER_JOB_ACCOMPLISHED_LATENCY,
+	statsd.gauge(JQUEUER_JOB_ACCOMPLISHED_DURATION,
 		elapsed_time,
 		tags=[
 			'node_id:%s' % node_id,
@@ -125,7 +125,7 @@ def terminate_job(node_id, experiment_id ,service_name, qworker_id, job_id, star
 	)
 
 JQUEUER_JOB_FAILED 				= 'jqueuer_job_failed'
-JQUEUER_JOB_FAILED_LATENCY 		= 'jqueuer_job_failed_latency'
+JQUEUER_JOB_FAILED_DURATION 		= 'jqueuer_job_failed_duration'
 JQUEUER_JOB_FAILED_TIMESTAMP 	= 'jqueuer_job_failed_timestamp'
 def job_failed(node_id, experiment_id ,service_name, qworker_id, job_id, fail_time):
 	elapsed_time = time.time() - fail_time
@@ -149,7 +149,7 @@ def job_failed(node_id, experiment_id ,service_name, qworker_id, job_id, fail_ti
 			'job_id: %s' % job_id,
 		]
 	)
-	statsd.gauge(JQUEUER_JOB_FAILED_LATENCY,
+	statsd.gauge(JQUEUER_JOB_FAILED_DURATION,
 		elapsed_time,
 		tags=[
 			'node_id:%s' % node_id,
@@ -231,7 +231,7 @@ def run_task(node_id, experiment_id ,service_name, qworker_id, job_id, task_id):
 	)
 
 JQUEUER_TASK_ACCOMPLISHED 			= 'jqueuer_task_accomplished'
-JQUEUER_TASK_ACCOMPLISHED_LATENCY 	= 'jqueuer_task_accomplished_latency'
+JQUEUER_TASK_ACCOMPLISHED_DURATION 	= 'jqueuer_task_accomplished_duration'
 JQUEUER_TASK_ACCOMPLISHED_TIMESTAMP = 'jqueuer_task_accomplished_timestamp'
 def terminate_task(node_id, experiment_id ,service_name, qworker_id, job_id, task_id, start_time):
 	elapsed_time = time.time() - start_time
@@ -256,7 +256,7 @@ def terminate_task(node_id, experiment_id ,service_name, qworker_id, job_id, tas
 			'job_id: %s' % job_id,
 		]
 	)
-	statsd.gauge(JQUEUER_TASK_ACCOMPLISHED_LATENCY,
+	statsd.gauge(JQUEUER_TASK_ACCOMPLISHED_DURATION,
 		elapsed_time,
 		tags=[
 			'node_id:%s' % node_id,
@@ -291,7 +291,7 @@ def terminate_task(node_id, experiment_id ,service_name, qworker_id, job_id, tas
 	)
 
 JQUEUER_TASK_FAILED 			= 'jqueuer_task_failed'
-JQUEUER_TASK_FAILED_LATENCY 	= 'jqueuer_task_failed_latency'
+JQUEUER_TASK_FAILED_DURATION 	= 'jqueuer_task_failed_duration'
 JQUEUER_TASK_FAILED_TIMESTAMP 	= 'jqueuer_task_failed_timestamp'
 def task_failed(node_id, experiment_id ,service_name, qworker_id, job_id, task_id, fail_time):
 	elapsed_time = time.time() - fail_time
@@ -316,7 +316,7 @@ def task_failed(node_id, experiment_id ,service_name, qworker_id, job_id, task_i
 			'job_id: %s' % job_id,
 		]
 	)
-	statsd.gauge(JQUEUER_TASK_FAILED_LATENCY,
+	statsd.gauge(JQUEUER_TASK_FAILED_DURATION,
 		elapsed_time,
 		tags=[
 			'node_id:%s' % node_id,
